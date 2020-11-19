@@ -46,20 +46,41 @@ function GreetManyTimes(call, callback) {
 		}, 1000);
 }
 
+function primeNumberDecomposition(call, callback) {
+	let number = call.request.getNumber();
+	let divisor = 2;
+
+	while (number > 1) {
+		if (number % divisor === 0) {
+			const primeNumberDecompositionResponse = new calc.PrimeNumberDecompositionResponse();
+			primeNumberDecompositionResponse.setPrimeFactor(divisor);
+			number /= divisor;
+
+			// write the message using call.write
+			call.write(primeNumberDecompositionResponse);
+		} else {
+			divisor += 1;
+			console.log('Divisor: ', divisor);
+		}
+	}
+	call.end(); // all messages sent!;
+}
+
 function main() {
 	let server = new grpc.Server();
 	server.addService(calcService.CalculatorServiceService, {
 		sum: sum,
+		primeNumberDecomposition,
 	});
-	server.addService(service.GreetServiceService, {
-		greet: greet,
-		GreetManyTimes: GreetManyTimes,
-	});
+	// server.addService(service.GreetServiceService, {
+	// 	greet: greet,
+	// 	GreetManyTimes: GreetManyTimes,
+	// });
 	server.bind(
 		'127.0.0.1:5000',
 		grpc.ServerCredentials.createInsecure()
 	);
-	
+
 	server.start();
 
 	console.log(`Server running on port: 127.0.0.1:5000`);
