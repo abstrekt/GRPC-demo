@@ -48,10 +48,44 @@ function callSum() {
 	});
 }
 
+function callGreetManyTimes() {
+	let client = new service.GreetServiceClient( 
+		'localhost:5000',
+		grpc.credentials.createInsecure()
+	);
+
+	// create request
+	let request = new greets.GreetManyTimesRequest();
+	let greeting = new greets.Greeting();
+	greeting.setFirstName('Paeolo');
+	greeting.setLastName('Sereo');
+
+	request.setGreeting(greeting);
+
+	let call = client.greetManyTimes(request});
+
+	call.on('data', res => {
+		console.log('Client Streaming Response: ', res.getResult());
+	});
+
+	call.on('status', status => {
+		console.log(`Status: ${status}`);
+	});
+
+	call.on('error', err => {
+		console.log(`error: ${err.message}`);
+	});
+
+	call.on('end', () => {
+		console.log('Streaming Ended.');
+	});
+}
+
 function main() {
 	console.log('hello from client.');
 	// callGreetings();
-	callSum();
+	// callSum();
+	callGreetManyTimes();
 }
 
 main();

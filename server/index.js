@@ -27,17 +27,39 @@ function greet(call, callback) {
 
 	callback(null, greeting);
 }
+// studding
+function GreetManyTimes(call, callback) {
+	let firstName = call.request.getGreeting().getFirstName();
+
+	let count = 0,
+		intervalID = setInterval(function () {
+			let GreetManyTimesResponse = new greets.GreetManyTimesResponse();
+
+			GreetManyTimesResponse.setResult(firstName);
+
+			// setup streaming
+			call.write(GreetManyTimesResponse);
+			if (++count > 9) {
+				clearInterval(intervalID);
+				call.end(); //we've sent all messages;
+			}
+		}, 1000);
+}
 
 function main() {
 	let server = new grpc.Server();
 	server.addService(calcService.CalculatorServiceService, {
 		sum: sum,
 	});
-	server.addService(service.GreetServiceService, { greet: greet });
+	server.addService(service.GreetServiceService, {
+		greet: greet,
+		GreetManyTimes: GreetManyTimes,
+	});
 	server.bind(
 		'127.0.0.1:5000',
 		grpc.ServerCredentials.createInsecure()
 	);
+	
 	server.start();
 
 	console.log(`Server running on port: 127.0.0.1:5000`);
